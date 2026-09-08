@@ -1,0 +1,26 @@
+% plot_Gs_bode_step.m
+% Plots Bode (with margins) and closed-loop step response for
+% G(s) = K*(s+1.5) / ( s*(s+1)*(s+5) )
+clc; clear; close all;
+
+% ===== user parameter =====
+K = 1;   % set desired gain K
+% ===========================
+
+num = K * [1 1.5];                % K*(s + 1.5)
+den = conv([1 0], conv([1 1], [1 5]));  % s*(s+1)*(s+5)
+
+G = tf(num, den);
+
+% ----- Bode plot with margins -----
+figure;
+margin(G);
+title(['Bode Plot (K = ' num2str(K) ')']);
+grid on;
+
+% ----- Closed-loop step response -----
+Tcl = feedback(G, 1);  % unity feedback closed-loop
+figure;
+step(Tcl);
+title(['Closed-loop Step Response (K = ' num2str(K) ')']);
+grid on;

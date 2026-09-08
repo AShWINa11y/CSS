@@ -1,0 +1,20 @@
+clc; clear; close all;
+
+% Define transfer function variable
+s = tf('s');
+
+% Given system
+G = 1 / (s * (0.5*s + 1) * (0.2*s + 1));
+
+% Auto-tuned PID controller
+C_PID = pidtune(G, 'PID');
+
+% Closed-loop system with PID
+T_PID = feedback(C_PID * G, 1);
+
+% Plot step response
+figure;
+step(T_PID, 10);
+title('Step Response with PID Controller');
+legend('PID Controller', 'Location', 'Best');
+grid on;

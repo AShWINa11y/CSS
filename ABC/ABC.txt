@@ -1,0 +1,296 @@
+                                                            1.DIGITAL POSITION CONTROL
+
+clc; clear; close all;
+
+% DC Servo Motor Parameters
+J = 3.2284e-6; 
+B = 3.5077e-6; 
+K = 0.0274; 
+R = 4; 
+L = 2.75e-6;
+
+% Transfer function θ(s)/V(s)
+s = tf('s');
+G = K / (s * ((J*s + B)*(L*s + R) + K^2));
+
+% Discretize (Zero-Order Hold)
+Ts = 0.001;
+Gd = c2d(G, Ts, 'zoh');
+
+% Closed-loop with unity feedback
+T = feedback(Gd, 1);
+
+% Stairstep (discrete-time) response
+step(T, 0.5); grid on;
+title('Stairstep Response of DC Servo Motor');
+xlabel('Time (s)'); ylabel('Position (radians)');
+
+
+                                                                   2.FREQUENCY RESPONSE OF LTI
+k=1;
+
+num=k*[64 128];
+
+den=[1  3.7  65.6  32  0];
+
+h=tf(num, den);
+
+figure;
+
+bode(h);
+
+[Gm Pm Wgm Wpm]=margin(h);
+
+margin(h);
+
+k=16;
+
+num=k*[64 128];
+
+den=[1  3.7  65.6  32  0];
+
+h=tf(num, den);
+
+figure;
+
+bode(h);
+
+[Gm Pm Wgm Wpm]=margin(h);
+
+margin(h);
+
+
+
+
+                                                                    3a.ULTRASONIC SENSOR 
+#define TRIG_PIN 5 
+#define ECHO_PIN 18 
+void setup() { 
+Serial.begin(9600); 
+pinMode(TRIG_PIN, OUTPUT); 
+pinMode(ECHO_PIN, INPUT); 
+} 
+void loop() { 
+// Send a 10us HIGH pulse to trigger the sensor 
+digitalWrite(TRIG_PIN, LOW); 
+delayMicroseconds(2); 
+digitalWrite(TRIG_PIN, HIGH); 
+delayMicroseconds(10); 
+digitalWrite(TRIG_PIN, LOW); 
+// Read the echo me 
+long dura on = pulseIn(ECHO_PIN, HIGH); 
+// Calculate distance in cm 
+f
+ loat distance = dura on * 0.034 / 2; 
+// Print to Serial Monitor 
+Serial.print("Distance: "); 
+Serial.print(distance); 
+Serial.println(" cm"); 
+delay(1000); // Wait half a second before next reading
+}
+
+
+                                                       3b.LM 35 – TEMPERATURE SENSOR  
+// Define the analog pin connected to LM35 
+const int lm35Pin = 34;  // GPIO34 is ADC1 channel 6 
+void setup() { 
+Serial.begin(9600);  // Start Serial Monitor 
+delay(1000);           
+// Wait for Serial to ini alize 
+Serial.println("LM35 Temperature Sensor Monitoring Started"); 
+} 
+void loop() { 
+int rawValue = analogRead(lm35Pin);  // Read raw ADC value 
+f
+ loat voltage = (rawValue / 4095.0) * 3.3;  // Convert to voltage (ESP32 uses 3.3V reference) 
+f
+ loat temperatureC = voltage * 100.0;  //LM35 gives 10mV per degree Celsius     
+Serial.print("Raw ADC: "); 
+Serial.print(rawValue); 
+Serial.print(" | Voltage: "); 
+Serial.print(voltage, 3); 
+Serial.print(" V | Temperature: "); 
+Serial.print(temperatureC, 2); 
+Serial.println(" °C"); 
+delay(1000);  // Read every second 
+} 
+
+
+                                                               3c.LDR 
+// Define the analog pin connected to the LDR
+const int ldrPin = 34;  // GPIO34 is ADC1 channel 6 
+// Threshold value to determine HIGH or LOW light 
+const int threshold = 2000;  // Adjust based on your environment 
+void setup() { 
+Serial.begin(9600);  // Start Serial Monitor 
+delay(1000);           
+// Give me for Serial to ini alize 
+Serial.println("LDR Sensor Monitoring Started"); 
+} 
+void loop() { 
+int ldrValue = analogRead(ldrPin);  // Read analog value from LDR 
+Serial.print("LDR Value: "); 
+Serial.print(ldrValue); 
+Serial.print(" => Light Level: "); 
+if (ldrValue > threshold) { 
+Serial.println("LOW");  // Bright light 
+} else { 
+Serial.println("HIGH");   // Dim or dark 
+} 
+delay(1000);  // Wait half a second before next reading
+}
+
+
+                                                       4.DC-DC BUCK CONVERTER COMPONENTS
+1.power gui
+2.repeating sequence
+3.constant
+4.relational operator
+5.mosfet
+6.Dc voltage
+7.diode
+8.RLC series branch
+9.voltage measurement
+10.scope
+11.display
+
+
+                                                                 5.ROOT LOCUS
+clc; clear; close all;
+
+num = [1 1];
+den = [1 4 13];
+G = tf(num, den);
+
+rlocus(G);
+title('Root Locus of G(s) = K(s+1)/(s^2 + 4s + 13)');
+grid on;
+
+
+                                                               6.LAG-LEAD COMPENSATOR
+clc;
+clear;
+s = tf('s');
+K = 1;
+G = K * (s + 1.5) / (s * (s + 1) * (s + 5));
+
+%-------------------------------------------------------------
+% Bode Plot for Uncompensated System
+%-------------------------------------------------------------
+figure;
+margin(G);
+title('Bode Plot of Uncompensated System');
+margin(G);
+grid on;
+
+%-------------------------------------------------------------
+% Design Lead Compensator
+%-------------------------------------------------------------
+z_lead = 10;
+p_lead = 1;
+D_lead = (s + z_lead) / (s + p_lead);
+G_lead_comp = D_lead * G;
+
+% Bode Plot for Lead Compensated System
+figure;
+margin(G_lead_comp);
+title('Bode Plot of Lead Compensated System');
+margin(G_lead_comp);
+grid on;
+
+%-------------------------------------------------------------
+% Design Lag Compensator
+%-------------------------------------------------------------
+z_lag = 0.1;
+p_lag = 0.01;
+D_lag = (s + z_lag) / (s + p_lag);
+G_lag_comp = D_lag * G;
+
+% Bode Plot for Lag Compensated System
+figure;
+margin(G_lag_comp);
+title('Bode Plot of Lag Compensated System');
+margin(G_lag_comp);
+grid on;
+
+%-------------------------------------------------------------
+% Design Lead-Lag Compensator
+%-------------------------------------------------------------
+D_leadlag = D_lead * D_lag;
+G_leadlag_comp = D_leadlag * G;
+
+% Bode Plot for Lead-Lag Compensated System
+figure;
+margin(G_leadlag_comp);
+title('Bode Plot of Lead-Lag Compensated System');
+margin(G_leadlag_comp);
+grid on;
+
+%-------------------------------------------------------------
+% Step Responses
+%-------------------------------------------------------------
+figure;
+step(G);
+figure;
+step(G_lead_comp,G_lag_comp,G_leadlag_comp);
+
+
+
+                                                        7.CLOSED LOOP OF DC MOTOR COMPONENTS
+1.constant
+2.sum
+3.relay
+4.sum
+5.display
+6.controlled voltage source
+7.dc machine
+8.step scope
+9.Mux
+10.memory'
+
+
+
+                                                                  8.PID CONTROLLER
+clc; clear; close all;
+s = tf('s');
+G = 100/(s*(s+2)*(s+5));
+
+% ==== Enter your gains here ====
+Kp = 5;   % proportional
+Ki = 2;   % integral
+Kd = 1;   % derivative
+% ===============================
+
+% Controllers: None, P, PD, PID
+C{1} = 1;                % No Controller
+C{2} = Kp;               % P
+C{3} = Kp + Kd*s;        % PD
+C{4} = Kp + Ki/s + Kd*s; % PID
+
+% Closed-loop systems
+for k = 1:4
+    T{k} = feedback(C{k}*G,1);
+end
+
+% Plot step responses
+step(T{:},10)
+legend('No Ctrl','P','PD','PID')
+
+% Names
+names = {'No Ctrl','P','PD','PID'};
+
+% Display performance + steady-state error
+for k = 1:4
+    info = stepinfo(T{k});
+    ess = abs(1 - dcgain(T{k}));
+    
+    fprintf('\n%s:\n', names{k});
+    fprintf('Rise Time = %.4f\n', info.RiseTime);
+    fprintf('Settling Time = %.4f\n', info.SettlingTime);
+    fprintf('Overshoot = %.2f%%\n', info.Overshoot);
+    fprintf('Ess = %.4f\n', ess);
+end
+
+
+
+

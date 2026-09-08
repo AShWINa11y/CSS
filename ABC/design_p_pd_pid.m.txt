@@ -1,0 +1,21 @@
+clc; clear; close all;
+
+% Define transfer function variable
+s = tf('s');
+
+% Given system
+G = 1 / (s * (0.5*s + 1) * (0.2*s + 1));
+
+% Controllers: None, P, PD, PID (auto-tuned)
+C = {1, pidtune(G, 'P'), pidtune(G, 'PD'), pidtune(G, 'PID')};
+
+% Closed-loop transfer functions
+T = {feedback(C{1}*G, 1), feedback(C{2}*G, 1), ...
+     feedback(C{3}*G, 1), feedback(C{4}*G, 1)};
+
+% Plot step responses
+figure;
+step(T{:}, 10);
+legend('No Control', 'P', 'PD', 'PID', 'Location', 'Best');
+title('Step Response: No Control vs P, PD, PID Controllers');
+grid on;

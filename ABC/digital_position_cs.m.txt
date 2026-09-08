@@ -1,0 +1,24 @@
+clc; clear; close all;
+
+% DC Servo Motor Parameters
+J = 3.2284e-6; 
+B = 3.5077e-6; 
+K = 0.0274; 
+R = 4; 
+L = 2.75e-6;
+
+% Transfer function θ(s)/V(s)
+s = tf('s');
+G = K / (s * ((J*s + B)*(L*s + R) + K^2));
+
+% Discretize (Zero-Order Hold)
+Ts = 0.001;
+Gd = c2d(G, Ts, 'zoh');
+
+% Closed-loop with unity feedback
+T = feedback(Gd, 1);
+
+% Stairstep (discrete-time) response
+step(T, 0.5); grid on;
+title('Stairstep Response of DC Servo Motor');
+xlabel('Time (s)'); ylabel('Position (radians)');
