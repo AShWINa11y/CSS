@@ -1,0 +1,14 @@
+clc;
+clear;
+close all;
+%1. Create open-loop transfer function of the motor
+Km = 1.0;                                                       % Motor gain constant
+Kb = 0.5;                                                       % Back-EMF constant
+tau_e = 0.1;                                                    % Electrical time constant
+tau_m = 0.5;                                                    % Mechanical time constant
+Kbode = Km / (tau_e * tau_m);                                   % Bode gain constant
+wn = sqrt((1 + Kb*Km) / (tau_e* tau_m));                        % Natural frequency
+zeta = (tau_e + tau_m) / (2 *sqrt(tau_e * tau_m * (1 +Kb*Km))); % Damping ratio
+s = tf('s');                                            % Creates variable s that you can use in a
+rational expression to create a continuous-time
+transfer function model
